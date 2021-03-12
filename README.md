@@ -1,5 +1,7 @@
 # MoonWatch
 
+<img src="/Moonwatch.png" alt="Moonwatch"/>
+
 The Moonwatch is a project originating from the Klipper community that tries to realize something similar to the project "Printer Monitor" by Qrome.
 It utilizes the moonraker API in order to gather information about your printer's current status and displays them in a comprehensive manner. 
 Whenever your printer is not running it simply shows weather data of your preconfigured location. 
