@@ -10,13 +10,17 @@ namespace RP {
 
     WebServer::WebServer()
     {
+        server.rewrite("/", "index.html");
+        server.rewrite("/index.html", "index-ap.html").setFilter(ON_AP_FILTER);  
+        server.serveStatic("/", LittleFS, "/");
+
         // welcome
-        server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-            request->send(LittleFS, "/index.html");
-        });
+        // server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
+        //     request->send(LittleFS, "/index.html");
+        // });
 
         // include
-        server.serveStatic("/include", LittleFS, "/include");        
+        server.serveStatic("/include", LittleFS, "/include");              
         server.onNotFound(notFound);
         server.begin();
     };

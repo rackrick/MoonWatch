@@ -13,6 +13,9 @@ void MoonWatch::setupMonitor() {
     // setup gpio
     pinMode(LED_BUILTIN, OUTPUT);
 
+    //soft ap
+    WiFi.softAP(F("MoonWatch"));
+
     // filesystem
     Serial.println(F("set up filesystem..."));
 
@@ -48,6 +51,12 @@ void MoonWatch::setupMonitor() {
     };
     lcd->showStatusMsg(loadMsg, 2);
     delay(2000);
+
+    // WebServer
+    Serial.println(F("Starting Webserver..."));
+    String fsMsg[] = {String(F("Starting Webserver..."))};
+    lcd->showStatusMsg(fsMsg, 1);    
+    WebServer webServer = WebServer();
   
     // wifi
     Serial.println(F("set up wifi..."));
@@ -80,12 +89,6 @@ void MoonWatch::setupMonitor() {
         lcd->showStatusMsg(wifiMsg, 2);
     }
     Serial.println(F("Connected!"));
-
-    // WebServer
-    Serial.println(F("Starting Webserver..."));
-    String fsMsg[] = {String(F("Starting Webserver..."))};
-    lcd->showStatusMsg(fsMsg, 1);    
-    WebServer webServer = WebServer();
 
     // setup complete
     String wifiConnected[2];
