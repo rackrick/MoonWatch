@@ -20,10 +20,13 @@ namespace RP {
                 LedConfig led;                
 
                 // methods
-                bool load();                
+                bool load();   
+                bool updateWifi(String ssid, String pass);             
 
         private:
             // ctor for singleton
             ConfigStore();
+
+            void save()
     };
 }

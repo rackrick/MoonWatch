@@ -54,8 +54,48 @@ namespace RP {
                 led.Brightness = doc["led"]["brightness"].as<int>();
                 led.StatusLed = doc["led"]["statusled"].as<int>();
 
+                config.close();
+
                 return true;
             }
+        }
+
+        void ConfigStore::save() {
+            StaticJsonDocument<768> doc;
+
+            JsonObject generalSettings = doc.createNestedObject("general");
+            generalSettings["wifi"] = general.wifi;
+            generalSettings["password"] = general.password;
+            generalSettings["display"] = general.display;
+
+            JsonArray printersSettings = doc.createNestedArray("printers");
+
+            for (int i = 0; i < printers.size(); i++) {
+                JsonObject printer = printersSettings.createNestedObject();
+                printer["name"] = printers[i].Name;
+                printer["host"] = printers[i].Host;
+                printer["led"] = printers[i].Led;
+            }
+
+            JsonObject ledSettings = doc.createNestedObject("led");
+            ledSettings["numleds"] = led.NumLeds;
+            ledSettings["statusled"] = led.StatusLed;
+            ledSettings["brightness"] = led.Brightness;
+
+     
+
+            if (LittleFS.exists(CONFIG_FILE)) {
+                LittleFS.remove(CONFIG_FILE);
+            }
+                
+            File config = LittleFS.open(CONFIG_FILE, "w");
+            serializeJson(doc, config);
+            config.close();
+        }
+
+        bool ConfigStore::updateWifi(String ssid, String pass) {
+            general.wifi = ssid;
+            general.password = pass;
         }
 
 
