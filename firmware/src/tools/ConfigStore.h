@@ -27,6 +27,6 @@ namespace RP {
             // ctor for singleton
             ConfigStore();
 
-            void save()
+            void save();
     };
 }

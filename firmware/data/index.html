@@ -1,20 +1,95 @@
 <html>
     <head>
-        <title>Hello World</title>
+        <title>MoonWatch Control</title>
         <script src="include/moonwatch.js"></script>
+        <link rel="stylesheet" href="include/site.css">
     </head>
     <body>
-        <div>
+        <div id="wrapper">
             <h2>Welcome to MoonWatch</h2>
-            <p>Enter your wifi credentials to proceed with MoonWatch</p>
             <form>
-                <label>Wifi Name:</label>
-                <input type="text" id="wifi">
-                <br>
-                <label>Password:</label>
-                <input type="password" id="password">
-                <br>
-                <button type="button" onclick="storewifi()">save</button>
+                <table id="setTable">
+                    <!-- GENERAL SETTINGS -->
+                    <tr>
+                        <td colspan="2" class="headline">General</td>
+                    </tr>
+                    <tr>
+                        <td class="label">
+                            Wif Network:
+                        </td>
+                        <td class="settings">
+                            <input type="text" id="wifi">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label">
+                            Wifi Password:
+                        </td>
+                        <td class="settings">
+                            <input type="password" id="password">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label">Display Type:</td>                        
+                        <td class="settings">
+                            <select id="display" disabled>
+                                <option value="0" selected>1,8" 160x128 ST7735</option>                                
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" class="note">
+                            (currently only ST7735 Displays are supported)
+                        </td>
+                    </tr>
+                    <!-- PRINTER SETTINGS -->
+                    <tr>
+                        <td colspan="2" class="headline">Printers</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <button type="button" onclick="addPrinter()">Add Printer</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"> 
+                            <div id="printer_container"></div>
+                        </td>
+                    </tr>
+                    <!-- LED SETTINGS -->
+                    <tr>
+                       <td colspan="2" class="headline">LED</td> 
+                    </tr>
+                    <tr>
+                        <td class="label">
+                            Number of LEDs:
+                        </td>
+                        <td class="settings">
+                            <input type="number" id="numleds" min="0" max="5">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label">
+                            Status LED Number:
+                        </td>
+                        <td class="settings">
+                            <input type="number" id="statusled" min="0" max="5">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label">
+                            Brightness:
+                        </td>
+                        <td class="settings">
+                            <input type="number" id="brightness" min="1" max="255">
+                        </td>
+                    </tr>
+                </table>
+                <button type="submit" onclick="storewifi()">save</button>
+            </form>
+            
+
+                
             </form>
         </div>
     </body>

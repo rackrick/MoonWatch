@@ -46,7 +46,7 @@ void MoonWatch::setupMonitor() {
     Serial.println(F("set up display..."));
     lcd = DisplayFactory::getInstance(static_cast<RP::eDisplayMode>(config.general.display)); //TODO: from config    
     String loadMsg[] = {
-        "Remote3D Monitor",
+        "MoonWatch",
         "V0.1"
     };
     lcd->showStatusMsg(loadMsg, 2);
@@ -99,6 +99,9 @@ void MoonWatch::setupMonitor() {
     Serial.println(F("Monitor initialized!"));
     Serial.print(F("IP: "));    
     Serial.print(WiFi.localIP());
+
+    // disable soft ap
+    WiFi.softAPdisconnect(true);
 
     leds[StatusLED] = CRGB::Green;
     FastLED.show();
@@ -226,7 +229,10 @@ void MoonWatch::startMonitor() {
         lcd->showStatusMsg(msg, 1);
         FastLED.clear();
         leds[StatusLED] = CRGB::Red;
-        FastLED.show();    
+        FastLED.show();
+
+        // and turn the soft ap back on        
+        WiFi.softAP(F("MoonWatch"));
     }
 
 
