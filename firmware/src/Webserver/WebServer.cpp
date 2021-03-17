@@ -47,7 +47,26 @@ namespace RP {
         //     request->send(LittleFS, "/index.html");
         // });
 
-        // include
+        // get complete config, without password
+        server.on("/config", HTTP_GET, [](AsyncWebServerRequest *request){
+
+            AsyncJsonResponse * response = new AsyncJsonResponse();
+            JsonVariant& root = response->getRoot();
+
+            ConfigStore& config = ConfigStore::getInstance();                        
+            JsonObject configJson = config.getJson();
+            
+            // remove pw
+            configJson["general"]["password"] = "";
+            
+            // prepare response
+            root.set(configJson);
+            response->setLength();
+
+            request->send(response);
+        });
+
+        // include        
         server.serveStatic("/include", LittleFS, "/include");              
         server.onNotFound(notFound);
         server.begin();
