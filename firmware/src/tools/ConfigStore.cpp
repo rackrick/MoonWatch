@@ -33,6 +33,9 @@ namespace RP {
                     return false;
                 }
 
+                Serial.println("Json:");
+                Serial.println(doc.as<String>());
+
                 // general config
                 general.wifi = doc["general"]["wifi"].as<String>();
                 general.password = doc["general"]["password"].as<String>();
@@ -62,18 +65,38 @@ namespace RP {
         }
 
         JsonObject ConfigStore::getJson() {
-            return doc.as<JsonObject>();
+            JsonObject json = doc.as<JsonObject>();
+            json["general"]["wifi"] = general.wifi;
+            json["general"]["password"] = general.password;
+            json["general"]["display"] = general.display;
+
+            JsonArray arrPrinters = json["printers"].as<JsonArray>();
+
+            for (int i = 0; i < printers.size(); i++) {
+                arrPrinters[i]["name"] = printers[i].Name;
+                arrPrinters[i]["host"] = printers[i].Host;
+                arrPrinters[i]["led"] = printers[i].Led;
+            }
+
+            json["led"]["numleds"] = led.NumLeds;
+            json["led"]["statusled"] = led.StatusLed;
+            json["led"]["brightness"] = led.Brightness;
+
+            return json;
         }
 
-        void ConfigStore::save() {
-
-            if (LittleFS.exists(CONFIG_FILE)) {
-                LittleFS.remove(CONFIG_FILE);
-            }
+        bool ConfigStore::save() {
                 
             File config = LittleFS.open(CONFIG_FILE, "w");
-            serializeJson(getJson(), config);
-            config.close();
+
+            if (serializeJson(getJson(), config) > 0) {
+
+                config.close();
+                return true;
+            } else {
+                config.close();
+                return false;
+            }            
         }
 
         bool ConfigStore::updateWifi(String ssid, String pass) {
@@ -83,5 +106,26 @@ namespace RP {
             return true;
         }
 
+        bool ConfigStore::updateGeneral(GeneralConfig newConfig) {
+            if (newConfig.wifi != NULL & newConfig.password != NULL) {
+                general.wifi = newConfig.wifi;
+                general.password = newConfig.password;
+            }
 
+            general.display = newConfig.display;
+
+            return true;
+        }
+
+        bool ConfigStore::updatePrinters(std::vector<PrinterConfig> newPrinters) {
+            printers = newPrinters;
+
+            return true;
+        }
+
+        bool ConfigStore::updateLed(LedConfig newLeds) {
+            led = newLeds;
+
+            return true;
+        }
 }

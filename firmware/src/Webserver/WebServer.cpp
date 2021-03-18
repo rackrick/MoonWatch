@@ -42,11 +42,6 @@ namespace RP {
         });
         server.addHandler(wifiEndpoint);
 
-        // welcome
-        // server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-        //     request->send(LittleFS, "/index.html");
-        // });
-
         // get complete config, without password
         server.on("/config", HTTP_GET, [](AsyncWebServerRequest *request){
 
@@ -66,12 +61,76 @@ namespace RP {
             request->send(response);
         });
 
+        // post complete config, to save
+        AsyncCallbackJsonWebHandler* configEndpoint = new AsyncCallbackJsonWebHandler("/config", [](AsyncWebServerRequest *request, JsonVariant &json) {
+            
+            if (json.size() > 0) {
+                
+                // get config singleton
+                ConfigStore& configStore = ConfigStore::getInstance();
+
+                // convert json
+                JsonObject jsonObj = json.as<JsonObject>();
+
+                // write general config                    
+                GeneralConfig config;                
+                // skip wifi settings on empty password
+                if (jsonObj["general"]["password"].as<String>() != "") {
+                    config.wifi = jsonObj["general"]["wifi"].as<String>();
+                    config.password = jsonObj["general"]["password"].as<String>();
+                    config.display = jsonObj["general"]["display"].as<int>();
+                } else {
+                    config.display = jsonObj["general"]["display"].as<int>();
+                }
+
+                bool updateGeneral = configStore.updateGeneral(config);
+
+                // update printers
+                JsonArray arrPrinters = jsonObj["printers"].as<JsonArray>();
+                std::vector<PrinterConfig> newPrinters;
+
+                for (int i = 0; i < arrPrinters.size(); i++) {                    
+                    PrinterConfig helperPrinter;
+                    helperPrinter.Name = arrPrinters[i]["name"].as<String>();
+                    helperPrinter.Host = arrPrinters[i]["host"].as<String>();
+                    helperPrinter.Led = arrPrinters[i]["led"].as<int>();
+
+                    newPrinters.push_back(helperPrinter);
+                }
+
+                bool updatePrinters = configStore.updatePrinters(newPrinters);
+
+                // update led settings
+                LedConfig newLed;
+                newLed.NumLeds = jsonObj["led"]["numleds"].as<int>();
+                newLed.StatusLed = jsonObj["led"]["statusled"].as<int>();
+                newLed.Brightness = jsonObj["led"]["brightness"].as<int>();
+
+                bool updateLeds = configStore.updateLed(newLed);
+
+                if (updateGeneral && updatePrinters && updateLeds) {
+                    Serial.println(F("saving config"));
+                    Serial.println(configStore.save());
+                    request->send(200, "application/json", "{ \"status\": \"ok\" }");
+                } else {
+                    request->send(200, "application/json", "{ \"status\": \"error\" }");
+                }
+
+            } else {
+                request->send(200, "application/json", "{ \"status\": \"error\" }");
+            }
+        });
+        server.addHandler(configEndpoint);
+
+        // reset esp
+        server.on("/reset", HTTP_GET, [](AsyncWebServerRequest *request){
+            Serial.println(F("reset called"));
+            ESP.reset();
+        });
+
         // include        
         server.serveStatic("/include", LittleFS, "/include");              
         server.onNotFound(notFound);
         server.begin();
     };
-
-   
-
 }

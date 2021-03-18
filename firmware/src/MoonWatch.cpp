@@ -60,6 +60,23 @@ void MoonWatch::setupMonitor() {
   
     // wifi
     Serial.println(F("set up wifi..."));
+
+    if (config.general.wifi == "" && config.general.password == "") {
+        String wifiCfgMsg[] = {            
+            String(F("please connect to wifi:")),
+            String(F("MoonWatch")),
+            String(F("and browse to")),
+            String(F("http:\\\\192.168.4.1")),
+            String(F("to setup your MoonWatch"))
+        };
+
+        lcd->showStatusMsg(wifiCfgMsg, 5);
+
+        delay(15*60*1000);
+
+        return;
+    }
+
     WiFi.begin(config.general.wifi, config.general.password);
 
     String wifiMsg[2];
@@ -223,7 +240,8 @@ void MoonWatch::startMonitor() {
     } else {
         // wifi not connected, display error
         Serial.println("no wifi connection...");
-        String msg[] = {
+        Serial.println(WiFi.status());
+        String msg[] = {            
             String(F("NO WIFI CONNECTION"))
         };
         lcd->showStatusMsg(msg, 1);
@@ -231,7 +249,8 @@ void MoonWatch::startMonitor() {
         leds[StatusLED] = CRGB::Red;
         FastLED.show();
 
-        // and turn the soft ap back on        
+        // and turn the soft ap back on 
+        WiFi.begin(config.general.wifi, config.general.password);       
         WiFi.softAP(F("MoonWatch"));
     }
 
@@ -247,6 +266,12 @@ void MoonWatch::startMonitor() {
 bool MoonWatch::switchPrinter(std::vector<PrinterConfig> printers) {
 
     uint nextPrinter = activePrinter;
+
+    // with one printer we can't switch
+    if (printers.size() == 1) {
+        return false;
+    }
+
     if (activePrinter < printers.size()) {
         nextPrinter++;
     } else {

@@ -1,36 +1,82 @@
 let printers = 0;
 
-
 // load settings
 function load() {
+    fetch("/config")
+    .then(response => response.json())
+    .then(data =>  updateConfig(data));    
+}
 
+// display settings und site
+function updateConfig(data) {
+    // general settings
+    document.getElementById("wifi").value = data.general.wifi;
+    document.getElementById("display").value = data.general.display;
+
+    // printers
+    for (let i = 0; i < data.printers.length; i++) {
+        addPrinter(
+            data.printers[i].name,
+            data.printers[i].host,
+            data.printers[i].led
+        );
+    }
+
+    document.getElementById("numleds").value = data.led.numleds;
+    document.getElementById("statusled").value = data.led.statusled;
+    document.getElementById("brightness").value = data.led.brightness;
 }
 
 
 // store wifi 
-function storewifi() {
-    let ssid = document.getElementById("wifi").value;
-    let pw = document.getElementById("password").value;
+function save() {
+
+    confObj = {
+        general: {
+            wifi: document.getElementById("wifi").value,
+            password: document.getElementById("password").value,
+            display: document.getElementById("display").value,
+        }, 
+        printers: [],
+        led: {
+            numleds: document.getElementById("numleds").value,
+            brightness: document.getElementById("brightness").value,
+            statusled: document.getElementById("statusled").value
+        }        
+    }
+
+    let printerTbl = document.getElementById("printer_container");
+
+    for (let i = 0; i < printerTbl.childNodes.length; i++) {
+        printerObj = {
+            name: document.getElementById("printername_"+ i).value,
+            host: document.getElementById("printerhost_"+ i).value,
+            led: document.getElementById("printerled_" + i).value
+        }
+        confObj.printers.push(printerObj);
+    }
 
     let options = {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({
-            wifi: ssid,
-            password: pw
-        })
+        body: JSON.stringify(confObj)
     }
 
-    fetch("/rest/endpoint", options)
+    fetch("/config", options)
     .then(response => response.json())
-    .then(data => console.log(data));
+    .then(data => resetEsp(data));
+}
 
+function resetEsp(data) {
+    if (data.status == "ok") {
+        alert("settings saved. restart your MoonWatch to apply the new settings.")
+    }
 }
 
 // add a new printer printer inputs to config site
-function addPrinter() {
+function addPrinter(name, host, led) {
 
     let newPrinter = 0;
     if (printers != 0) {       
@@ -59,7 +105,12 @@ function addPrinter() {
 
     let inputName = document.createElement("input");
     inputName.id = "printername_" + newPrinter;
-    inputName.setAttribute("type", "text");    
+    inputName.setAttribute("type", "text");
+    
+    if (name !== undefined) {
+        inputName.value = name;
+    }
+    
     settingsColName.appendChild(inputName);
 
     // host row
@@ -76,8 +127,13 @@ function addPrinter() {
     hostRow.appendChild(settingsColHost);
 
     let inputHost = document.createElement("input");
-    inputHost.id = "printername_" + newPrinter;
+    inputHost.id = "printerhost_" + newPrinter;
     inputHost.setAttribute("type", "text");
+
+    if (host !== undefined) {
+        inputHost.value = host;
+    }
+
     settingsColHost.appendChild(inputHost);
 
     // led row
@@ -86,7 +142,7 @@ function addPrinter() {
 
     let labelColled = document.createElement("td");
     labelColled.className = "label";
-    labelColled.appendChild(document.createTextNode("led:"))
+    labelColled.appendChild(document.createTextNode("Led#:"))
     ledRow.appendChild(labelColled);
 
     let settingsColled = document.createElement("td");
@@ -94,8 +150,13 @@ function addPrinter() {
     ledRow.appendChild(settingsColled);
 
     let inputLed = document.createElement("input");
-    inputLed.id = "printername_" + newPrinter;
+    inputLed.id = "printerled_" + newPrinter;
     inputLed.setAttribute("type", "text");
+
+    if (led !== undefined) {
+        inputLed.value = led;
+    }
+
     settingsColled.appendChild(inputLed);
 
     // add to config site
@@ -104,4 +165,11 @@ function addPrinter() {
     }
 
     // creating with vanilla js tables is no fun...
+}
+
+// remove the last printer
+function delPrinter() {
+    let tblPrinters = document.getElementById("printer_container");
+    if (confirm("remove printer?"))
+    tblPrinters.childNodes[tblPrinters.childNodes.length - 1].remove();
 }

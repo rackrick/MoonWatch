@@ -21,8 +21,12 @@ namespace RP {
                 LedConfig led;                                
 
                 // methods
-                bool load();   
+                bool load();
+                bool updateGeneral(GeneralConfig config);
+                bool updatePrinters(std::vector<PrinterConfig> printers);
+                bool updateLed(LedConfig led);
                 bool updateWifi(String ssid, String pass);    
+                bool save();
                 JsonObject getJson();                               
 
         private:
@@ -31,8 +35,6 @@ namespace RP {
 
             // properties
             StaticJsonDocument<768> doc;
-
-            // methods
-            void save();
+                
     };
 }

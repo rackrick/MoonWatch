@@ -4,7 +4,7 @@
         <script src="include/moonwatch.js"></script>
         <link rel="stylesheet" href="include/site.css">
     </head>
-    <body onload="load()">
+    <body>
         <div id="wrapper">
             <h2>Welcome to MoonWatch</h2>
             <form>
@@ -49,6 +49,7 @@
                     <tr>
                         <td colspan="2">
                             <button type="button" onclick="addPrinter()">Add Printer</button>
+                            <button type="button" onclick="delPrinter()">Remove Printer</button>
                         </td>
                     </tr>
                     <tr>
@@ -70,7 +71,7 @@
                     </tr>
                     <tr>
                         <td class="label">
-                            Status LED Number:
+                            Status Led#:
                         </td>
                         <td class="settings">
                             <input type="number" id="statusled" min="0" max="5">
@@ -85,12 +86,11 @@
                         </td>
                     </tr>
                 </table>
-                <button type="submit" onclick="storewifi()">save</button>
-            </form>
-            
-
-                
-            </form>
+                <button type="button" onclick="save()">save</button>
+            </form>                                    
         </div>
+        <script type="text/javascript">
+            load();
+        </script>
     </body>
 </html>
