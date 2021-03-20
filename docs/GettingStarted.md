@@ -6,9 +6,9 @@ This document gives an explanation how to setup your own MoonWatch!
 
 - 1,8" TFT SPI Display ST7735 (Support for additonal Displays is coming soon)
 - D1 Mini - ESP8266 
-- Up to 5 WS2812B LEDs
+- Up to 4 WS2812B LEDs
 - A few jumper cables and dupont connectors (see wiring)
-- 4 pcs of M3x10 self tapping screws
+- 4 pcs of M3x6 screws
 
 ## Printlist
 
