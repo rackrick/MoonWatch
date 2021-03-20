@@ -15,7 +15,7 @@ This document gives an explanation how to setup your own MoonWatch!
 - 1 [Frontplate](../STL/Frontplate.stl)
 - 1 [Backplate](../STL/Backplate.stl)
 - 1 [Enclosure](../STL/Enclosure.stl)
-- 1 [LedClip](../STL/LED Clip.stl)
+- 1 [Led Clip](../STL/LED_Clip.stl)
 
 
 **Print settings:**
