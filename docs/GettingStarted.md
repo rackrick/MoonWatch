@@ -15,7 +15,7 @@ This document gives an explanation how to setup your own MoonWatch!
 - 1 Frontplate
 - 1 Backplate
 - 1 Enclosure
-- 3 LED Clips
+- 1 LED Clip
 
 
 **Print settings:**
@@ -34,9 +34,9 @@ ADD WIRING SCHEME HERE
 #### Windows guide (*NIX systems follow soon)
 
 In order to flash the software you first need to install the CH340 USB-Driver for the ESP8266.
-Download and install it from [https://wemos.cc](https://www.wemos.cc/en/latest/ch340_driver.html). After installing get the [lates release](https://github.com/rackrick/MoonWatch/releases) of MoonWatch. Unzip and run `moonwatch-flash.bat`. 
+Download and install it from [https://wemos.cc](https://www.wemos.cc/en/latest/ch340_driver.html). After installing get the [latest release](https://github.com/rackrick/MoonWatch/releases) of MoonWatch. Unzip and run `moonwatch-flash.bat`. 
 
-**Warning: Thil will erase your ESP8266 and will overwrite it with the MoonWatch firmware.**
+**Warning: This will erase your ESP8266 current memory and will overwrite it with the MoonWatch firmware.**
 
 Enter the COM-Port of your ESP8266 and hit enter twice to start the flashing process. 
 If you don't know the COM-Port number open the Windows Device Manger -> Ports (COM & LPT) and look for `USB-Serial CH340`.
@@ -60,7 +60,7 @@ Use the Interface to add your printers to watch and enjoy your MoonWatch.
 
 #### General
 - Wifi Network: The SSID / Name of your network
-- Wifi Password: Your password comes here
+- Wifi Password: Your password goes here
 - Display Type: For future use to select the installed display.
 
 #### Printers
@@ -82,10 +82,10 @@ Button `Remove Printer`: Removes the last printer from your configuration
 ## Troubleshooting
 
 1. Display stays white<br />
-check your wiring.
+Check your wiring.
 
 2. LED stripe is not working<br />
-the WS2812B have a direction from where the data shoule be coming. Check the arrow on the stripe.
+The WS2812B have a direction from where the data shoule be coming. Check the arrow on the stripe.
 
 
 
