@@ -65,8 +65,7 @@ Use the Interface to add your printers to watch and enjoy your MoonWatch.
 
 #### Printers
 
-Button `Add Printer`: Add a new printer to your configuration
-
+Button `Add Printer`: Add a new printer to your configuration<br />
 Button `Remove Printer`: Removes the last printer from your configuration
 
 - Printer Name: Display name of your printer.
@@ -77,17 +76,15 @@ Button `Remove Printer`: Removes the last printer from your configuration
 
 - Number of LEDs: Sets the number of avaible LEDs on your LED stripe.
 - Status Led#: 0 based index of avaible LEDs. This option defines which LED shows the MoonWatch system status.<br /> 
-... (0 = LED 1 on the stripe, 1 = LED 2, ...)
+(0 = LED 1 on the stripe, 1 = LED 2, ...)
 - Brightness: Sets the brightness of your LED stripe. 0-255 (0 = off, 255 = max power).
 
 ## Troubleshooting
 
 1. Display stays white
-
 check your wiring.
 
 2. LED stripe is not working
-
 the WS2812B have a direction from where the data shoule be coming. Check the arrow on the stripe.
 
 
