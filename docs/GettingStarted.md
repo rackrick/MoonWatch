@@ -12,10 +12,10 @@ This document gives an explanation how to setup your own MoonWatch!
 
 ## Printlist
 
-- 1 Frontplate
-- 1 Backplate
-- 1 Enclosure
-- 1 LED Clip
+- 1 [Frontplate](../STL/Frontplate.stl)
+- 1 [Backplate](../STL/Backplate.stl)
+- 1 [Enclosure](../STL/Enclosure.stl)
+- 1 [LED Clip](../STL/LED Clip.stl)
 
 
 **Print settings:**
@@ -26,7 +26,7 @@ Print without supports<br />
 
 ## Wiring
 
-ADD WIRING SCHEME HERE
+![Wiring](Moonwatch_Cabling.jpg)
 
 ## Software
 ### Flash firmware
