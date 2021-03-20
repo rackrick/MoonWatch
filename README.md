@@ -10,4 +10,10 @@ The goal of the project is to make for an easy and cheap yet very useful and fun
 
 It has to be noted that this project is still in development and therefore everything is subject to change.
 
+*** 
+
+How to setup your watch see the [getting started guide](/docs/GettingStarted.md).
+
+**Note:** Be aware this is an very early software state and there is no guarantee its working without any issues.
+
 # Enjoy!
