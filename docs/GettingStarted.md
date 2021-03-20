@@ -81,10 +81,10 @@ Button `Remove Printer`: Removes the last printer from your configuration
 
 ## Troubleshooting
 
-1. Display stays white
+1. Display stays white<br />
 check your wiring.
 
-2. LED stripe is not working
+2. LED stripe is not working<br />
 the WS2812B have a direction from where the data shoule be coming. Check the arrow on the stripe.
 
 
