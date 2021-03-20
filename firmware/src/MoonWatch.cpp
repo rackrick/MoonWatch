@@ -13,6 +13,9 @@ void MoonWatch::setupMonitor() {
     // setup gpio
     pinMode(LED_BUILTIN, OUTPUT);
 
+    //soft ap
+    WiFi.softAP(F("MoonWatch"));
+
     // filesystem
     Serial.println(F("set up filesystem..."));
 
@@ -43,14 +46,37 @@ void MoonWatch::setupMonitor() {
     Serial.println(F("set up display..."));
     lcd = DisplayFactory::getInstance(static_cast<RP::eDisplayMode>(config.general.display)); //TODO: from config    
     String loadMsg[] = {
-        "Remote3D Monitor",
+        "MoonWatch",
         "V0.1"
     };
     lcd->showStatusMsg(loadMsg, 2);
     delay(2000);
+
+    // WebServer
+    Serial.println(F("Starting Webserver..."));
+    String fsMsg[] = {String(F("Starting Webserver..."))};
+    lcd->showStatusMsg(fsMsg, 1);    
+    WebServer webServer = WebServer();
   
     // wifi
     Serial.println(F("set up wifi..."));
+
+    if (config.general.wifi == "" && config.general.password == "") {
+        String wifiCfgMsg[] = {            
+            String(F("please connect to wifi:")),
+            String(F("MoonWatch")),
+            String(F("and browse to")),
+            String(F("http:\\\\192.168.4.1")),
+            String(F("to setup your MoonWatch"))
+        };
+
+        lcd->showStatusMsg(wifiCfgMsg, 5);
+
+        delay(15*60*1000);
+
+        return;
+    }
+
     WiFi.begin(config.general.wifi, config.general.password);
 
     String wifiMsg[2];
@@ -81,12 +107,6 @@ void MoonWatch::setupMonitor() {
     }
     Serial.println(F("Connected!"));
 
-    // WebServer
-    Serial.println(F("Starting Webserver..."));
-    String fsMsg[] = {String(F("Starting Webserver..."))};
-    lcd->showStatusMsg(fsMsg, 1);    
-    WebServer webServer = WebServer();
-
     // setup complete
     String wifiConnected[2];
     wifiConnected[0] = F("Monitor initialized!");
@@ -96,6 +116,9 @@ void MoonWatch::setupMonitor() {
     Serial.println(F("Monitor initialized!"));
     Serial.print(F("IP: "));    
     Serial.print(WiFi.localIP());
+
+    // disable soft ap
+    WiFi.softAPdisconnect(true);
 
     leds[StatusLED] = CRGB::Green;
     FastLED.show();
@@ -217,13 +240,18 @@ void MoonWatch::startMonitor() {
     } else {
         // wifi not connected, display error
         Serial.println("no wifi connection...");
-        String msg[] = {
+        Serial.println(WiFi.status());
+        String msg[] = {            
             String(F("NO WIFI CONNECTION"))
         };
         lcd->showStatusMsg(msg, 1);
         FastLED.clear();
         leds[StatusLED] = CRGB::Red;
-        FastLED.show();    
+        FastLED.show();
+
+        // and turn the soft ap back on 
+        WiFi.begin(config.general.wifi, config.general.password);       
+        WiFi.softAP(F("MoonWatch"));
     }
 
 
@@ -238,6 +266,12 @@ void MoonWatch::startMonitor() {
 bool MoonWatch::switchPrinter(std::vector<PrinterConfig> printers) {
 
     uint nextPrinter = activePrinter;
+
+    // with one printer we can't switch
+    if (printers.size() == 1) {
+        return false;
+    }
+
     if (activePrinter < printers.size()) {
         nextPrinter++;
     } else {

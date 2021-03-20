@@ -1,6 +1,7 @@
 #include <LittleFS.h>
 #include <ArduinoJson.h>
 #include <vector>
+#include <string.h>
 
 #include "GeneralConfig.h"
 #include "PrinterConfig.h"
@@ -14,16 +15,26 @@ namespace RP {
                 ConfigStore(ConfigStore const&) = delete;
                 void operator=(ConfigStore const&)  = delete;
 
-                // properties
+                // properties                
                 GeneralConfig general;
                 std::vector<PrinterConfig> printers;
-                LedConfig led;                
+                LedConfig led;                                
 
                 // methods
-                bool load();                
+                bool load();
+                bool updateGeneral(GeneralConfig config);
+                bool updatePrinters(std::vector<PrinterConfig> printers);
+                bool updateLed(LedConfig led);
+                bool updateWifi(String ssid, String pass);    
+                bool save();
+                JsonObject getJson();                               
 
         private:
             // ctor for singleton
             ConfigStore();
+
+            // properties
+            StaticJsonDocument<768> doc;
+                
     };
 }

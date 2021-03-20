@@ -1,8 +1,96 @@
 <html>
     <head>
-        <title>Hello World</title>
+        <title>MoonWatch Control</title>
+        <script src="include/moonwatch.js"></script>
+        <link rel="stylesheet" href="include/site.css">
     </head>
     <body>
-        <h1>Hello Worl!</h1>
+        <div id="wrapper">
+            <h2>Welcome to MoonWatch</h2>
+            <form>
+                <table id="setTable">
+                    <!-- GENERAL SETTINGS -->
+                    <tr>
+                        <td colspan="2" class="headline">General</td>
+                    </tr>
+                    <tr>
+                        <td class="label">
+                            Wifi Network:
+                        </td>
+                        <td class="settings">
+                            <input type="text" id="wifi">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label">
+                            Wifi Password:
+                        </td>
+                        <td class="settings">
+                            <input type="password" id="password">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label">Display Type:</td>                        
+                        <td class="settings">
+                            <select id="display" disabled>
+                                <option value="0" selected>1,8" 160x128 ST7735</option>                                
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" class="note">
+                            (currently only ST7735 Displays are supported)
+                        </td>
+                    </tr>
+                    <!-- PRINTER SETTINGS -->
+                    <tr>
+                        <td colspan="2" class="headline">Printers</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <button type="button" onclick="addPrinter()">Add Printer</button>
+                            <button type="button" onclick="delPrinter()">Remove Printer</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"> 
+                            <div id="printer_container"></div>
+                        </td>
+                    </tr>
+                    <!-- LED SETTINGS -->
+                    <tr>
+                       <td colspan="2" class="headline">LED</td> 
+                    </tr>
+                    <tr>
+                        <td class="label">
+                            Number of LEDs:
+                        </td>
+                        <td class="settings">
+                            <input type="number" id="numleds" min="0" max="5">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label">
+                            Status Led#:
+                        </td>
+                        <td class="settings">
+                            <input type="number" id="statusled" min="0" max="5">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label">
+                            Brightness:
+                        </td>
+                        <td class="settings">
+                            <input type="number" id="brightness" min="1" max="255">
+                        </td>
+                    </tr>
+                </table>
+                <button type="button" onclick="save()">save</button>
+            </form>                                    
+        </div>
+        <script type="text/javascript">
+            load();
+        </script>
     </body>
 </html>
