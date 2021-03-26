@@ -66,7 +66,7 @@ void MoonWatch::setupMonitor() {
             String(F("please connect to wifi:")),
             String(F("MoonWatch")),
             String(F("and browse to")),
-            String(F("http:\\\\192.168.4.1")),
+            String(F("http://192.168.4.1")),
             String(F("to setup your MoonWatch"))
         };
 
@@ -272,7 +272,7 @@ bool MoonWatch::switchPrinter(std::vector<PrinterConfig> printers) {
         return false;
     }
 
-    if (activePrinter < printers.size()) {
+    if (activePrinter < (printers.size() - 1)) {
         nextPrinter++;
     } else {
         nextPrinter = 0;
@@ -282,9 +282,11 @@ bool MoonWatch::switchPrinter(std::vector<PrinterConfig> printers) {
     printer = mrClient.getData(printers[nextPrinter].Host);
 
     if (printer.connectionState == "success") {
-        activePrinter = nextPrinter;
+        activePrinter = nextPrinter;        
         return true;
     } else {
+        leds[printers[nextPrinter].Led] = CRGB::Black;        
+        
         return false;
     }
 }
