@@ -25,9 +25,11 @@ namespace RP {
                     Serial.println(F("error loading file from LittleFs"));
                     return false;                    
                 }
+
+                
                 
                 DeserializationError docError = deserializeJson(doc, config);
-
+                Serial.println(doc.as<String>());
                 if (docError) {
                     Serial.println(F("error parsing json"));
                     return false;
@@ -37,7 +39,7 @@ namespace RP {
                 general.wifi = doc["general"]["wifi"].as<String>();
                 general.password = doc["general"]["password"].as<String>();
                 general.display = doc["general"]["display"].as<int>();
-                general.utcOffset = doc["general"]["utcoffset"].as<int>();
+                general.utcoffset = doc["general"]["utcoffset"].as<int>();
 
                 // printers array
                 JsonArray arrPrinters = doc["printers"].as<JsonArray>();                   
@@ -67,7 +69,7 @@ namespace RP {
             json["general"]["wifi"] = general.wifi;
             json["general"]["password"] = general.password;
             json["general"]["display"] = general.display;
-            json["general"]["utcoffset"] = general.utcOffset;
+            json["general"]["utcoffset"] = general.utcoffset;
 
             JsonArray arrPrinters = json["printers"].as<JsonArray>();
 
@@ -112,7 +114,7 @@ namespace RP {
             }
 
             general.display = newConfig.display;
-            general.utcOffset = newConfig.utcOffset;
+            general.utcoffset = newConfig.utcoffset;
 
             return true;
         }

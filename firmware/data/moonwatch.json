@@ -3,7 +3,7 @@
         "wifi": "",
         "password": "",
         "display": 0,
-        "utcOffset": 2
+        "utcoffset": 2
     },
     "printers": [
         {

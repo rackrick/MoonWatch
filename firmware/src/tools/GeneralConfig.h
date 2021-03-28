@@ -7,6 +7,6 @@ namespace RP {
             String wifi;
             String password;
             int display;
-            int utcOffset;
+            int utcoffset;
     };
 }

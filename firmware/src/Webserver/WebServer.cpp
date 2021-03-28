@@ -79,9 +79,10 @@ namespace RP {
                     config.wifi = jsonObj["general"]["wifi"].as<String>();
                     config.password = jsonObj["general"]["password"].as<String>();
                     config.display = jsonObj["general"]["display"].as<int>();
+                    config.utcoffset = jsonObj["general"]["utcoffset"].as<int>();
                 } else {
                     config.display = jsonObj["general"]["display"].as<int>();
-                    config.utcOffset = jsonObj["general"]["utcOffset"].as<int>();
+                    config.utcoffset = jsonObj["general"]["utcoffset"].as<int>();
                 }
 
                 bool updateGeneral = configStore.updateGeneral(config);

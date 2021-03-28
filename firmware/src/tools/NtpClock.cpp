@@ -66,8 +66,8 @@ namespace RP {
                 delay(1000);
             }
 
-            ConfigStore& config = ConfigStore::getInstance();                              
-            long utcOffset = config.general.utcOffset;
+            ConfigStore& config = ConfigStore::getInstance();               
+            long utcOffset = config.general.utcoffset * 60 * 60;            
             WiFiUDP ntpUDP;
             NTPClient timeClient(ntpUDP, "pool.ntp.org", utcOffset);
             timeClient.begin();
