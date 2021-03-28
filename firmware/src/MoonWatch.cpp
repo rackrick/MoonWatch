@@ -230,6 +230,9 @@ void MoonWatch::startMonitor() {
                     lcd->showPrinterScreen(printerName, printer);
                 }
             } else {
+                Serial.println("idle screen: " + config.printers[activePrinter].Name);
+                Serial.println(printer.connectionState);
+                
                 lcd->showIdleScreen();
                 leds[printerLed] = CRGB::Black;            
             }        
@@ -265,6 +268,8 @@ void MoonWatch::startMonitor() {
 
 bool MoonWatch::switchPrinter(std::vector<PrinterConfig> printers) {
 
+    Serial.println(F("Try to switch"));
+
     uint nextPrinter = activePrinter;
 
     // with one printer we can't switch
@@ -278,13 +283,17 @@ bool MoonWatch::switchPrinter(std::vector<PrinterConfig> printers) {
         nextPrinter = 0;
     }
 
+    Serial.println("try next printer " + printers[nextPrinter].Name + "(" + nextPrinter + ")");
+
     MoonrakerClient mrClient;
     printer = mrClient.getData(printers[nextPrinter].Host);
 
     if (printer.connectionState == "success") {
+        Serial.println(F("success, switch printer"));
         activePrinter = nextPrinter;        
         return true;
     } else {
+        Serial.println(F("error, printer not reachable. skip."));
         leds[printers[nextPrinter].Led] = CRGB::Black;        
         
         return false;

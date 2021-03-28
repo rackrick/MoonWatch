@@ -2,7 +2,8 @@
     "general": {
         "wifi": "",
         "password": "",
-        "display": 0
+        "display": 0,
+        "utcOffset": 2
     },
     "printers": [
         {

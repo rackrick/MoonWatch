@@ -81,6 +81,7 @@ namespace RP {
                     config.display = jsonObj["general"]["display"].as<int>();
                 } else {
                     config.display = jsonObj["general"]["display"].as<int>();
+                    config.utcOffset = jsonObj["general"]["utcOffset"].as<int>();
                 }
 
                 bool updateGeneral = configStore.updateGeneral(config);
@@ -125,6 +126,7 @@ namespace RP {
         // reset esp
         server.on("/reset", HTTP_GET, [](AsyncWebServerRequest *request){
             Serial.println(F("reset called"));
+            request->send(200, "application/json", "{ \"status\": \"ok\" }");
             ESP.reset();
         });
 

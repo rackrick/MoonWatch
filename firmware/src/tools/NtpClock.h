@@ -2,6 +2,11 @@
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
 
+#ifndef ConfigStoreH
+    #define ConfigStoreH
+    #include "ConfigStore.h"
+#endif
+
 namespace RP
 {
     namespace Tools

@@ -33,13 +33,11 @@ namespace RP {
                     return false;
                 }
 
-                Serial.println("Json:");
-                Serial.println(doc.as<String>());
-
                 // general config
                 general.wifi = doc["general"]["wifi"].as<String>();
                 general.password = doc["general"]["password"].as<String>();
                 general.display = doc["general"]["display"].as<int>();
+                general.utcOffset = doc["general"]["utcoffset"].as<int>();
 
                 // printers array
                 JsonArray arrPrinters = doc["printers"].as<JsonArray>();                   
@@ -69,6 +67,7 @@ namespace RP {
             json["general"]["wifi"] = general.wifi;
             json["general"]["password"] = general.password;
             json["general"]["display"] = general.display;
+            json["general"]["utcoffset"] = general.utcOffset;
 
             JsonArray arrPrinters = json["printers"].as<JsonArray>();
 
@@ -113,6 +112,7 @@ namespace RP {
             }
 
             general.display = newConfig.display;
+            general.utcOffset = newConfig.utcOffset;
 
             return true;
         }

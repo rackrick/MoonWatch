@@ -12,6 +12,7 @@ function updateConfig(data) {
     // general settings
     document.getElementById("wifi").value = data.general.wifi;
     document.getElementById("display").value = data.general.display;
+    document.getElementById("utcOffset").value = data.general.utcOffset;
 
     // printers
     for (let i = 0; i < data.printers.length; i++) {
@@ -36,6 +37,7 @@ function save() {
             wifi: document.getElementById("wifi").value,
             password: document.getElementById("password").value,
             display: document.getElementById("display").value,
+            utcOffset: document.getElementById("utcOffset").value,
         }, 
         printers: [],
         led: {
