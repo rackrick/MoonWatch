@@ -12,8 +12,6 @@ namespace RP {
             return instance;
         }
 
-        //1613519630
-
         String NtpClock::getDateTimeString() {            
             // tick tack clock
             tickTime();
@@ -67,8 +65,9 @@ namespace RP {
             if (!ntpSuccess) {
                 delay(1000);
             }
-                  
-            long utcOffset = 1 * 60 * 60;   //TODO: Get from config
+
+            ConfigStore& config = ConfigStore::getInstance();               
+            long utcOffset = config.general.utcoffset * 60 * 60;            
             WiFiUDP ntpUDP;
             NTPClient timeClient(ntpUDP, "pool.ntp.org", utcOffset);
             timeClient.begin();

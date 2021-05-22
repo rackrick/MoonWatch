@@ -47,7 +47,7 @@ void MoonWatch::setupMonitor() {
     lcd = DisplayFactory::getInstance(static_cast<RP::eDisplayMode>(config.general.display)); //TODO: from config    
     String loadMsg[] = {
         "MoonWatch",
-        "V0.2"
+        "V0.11"
     };
     lcd->showStatusMsg(loadMsg, 2);
     delay(2000);
@@ -66,7 +66,7 @@ void MoonWatch::setupMonitor() {
             String(F("please connect to wifi:")),
             String(F("MoonWatch")),
             String(F("and browse to")),
-            String(F("http:\\\\192.168.4.1")),
+            String(F("http://192.168.4.1")),
             String(F("to setup your MoonWatch"))
         };
 
@@ -230,6 +230,9 @@ void MoonWatch::startMonitor() {
                     lcd->showPrinterScreen(printerName, printer);
                 }
             } else {
+                Serial.println("idle screen: " + config.printers[activePrinter].Name);
+                Serial.println(printer.connectionState);
+                
                 lcd->showIdleScreen();
                 leds[printerLed] = CRGB::Black;            
             }        
@@ -265,6 +268,8 @@ void MoonWatch::startMonitor() {
 
 bool MoonWatch::switchPrinter(std::vector<PrinterConfig> printers) {
 
+    Serial.println(F("Try to switch"));
+
     uint nextPrinter = activePrinter;
 
     // with one printer we can't switch
@@ -272,19 +277,25 @@ bool MoonWatch::switchPrinter(std::vector<PrinterConfig> printers) {
         return false;
     }
 
-    if (activePrinter < printers.size()) {
+    if (activePrinter < (printers.size() - 1)) {
         nextPrinter++;
     } else {
         nextPrinter = 0;
     }
 
+    Serial.println("try next printer " + printers[nextPrinter].Name + "(" + nextPrinter + ")");
+
     MoonrakerClient mrClient;
     printer = mrClient.getData(printers[nextPrinter].Host);
 
     if (printer.connectionState == "success") {
-        activePrinter = nextPrinter;
+        Serial.println(F("success, switch printer"));
+        activePrinter = nextPrinter;        
         return true;
     } else {
+        Serial.println(F("error, printer not reachable. skip."));
+        leds[printers[nextPrinter].Led] = CRGB::Black;        
+        
         return false;
     }
 }

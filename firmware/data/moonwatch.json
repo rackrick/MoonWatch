@@ -1,0 +1,20 @@
+{
+    "general": {
+        "wifi": "",
+        "password": "",
+        "display": 0,
+        "utcoffset": 2
+    },
+    "printers": [
+        {
+            "name": "yourprinter",
+            "host": "moonrakerhost",
+            "led": 1
+        }
+    ],
+    "led": {
+        "numleds": 5,
+        "brightness": 10,
+        "statusled": 0
+    }
+}

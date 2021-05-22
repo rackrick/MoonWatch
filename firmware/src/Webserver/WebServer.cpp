@@ -79,8 +79,10 @@ namespace RP {
                     config.wifi = jsonObj["general"]["wifi"].as<String>();
                     config.password = jsonObj["general"]["password"].as<String>();
                     config.display = jsonObj["general"]["display"].as<int>();
+                    config.utcoffset = jsonObj["general"]["utcoffset"].as<int>();
                 } else {
                     config.display = jsonObj["general"]["display"].as<int>();
+                    config.utcoffset = jsonObj["general"]["utcoffset"].as<int>();
                 }
 
                 bool updateGeneral = configStore.updateGeneral(config);
@@ -125,6 +127,7 @@ namespace RP {
         // reset esp
         server.on("/reset", HTTP_GET, [](AsyncWebServerRequest *request){
             Serial.println(F("reset called"));
+            request->send(200, "application/json", "{ \"status\": \"ok\" }");
             ESP.reset();
         });
 
