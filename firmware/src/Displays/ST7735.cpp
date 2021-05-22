@@ -40,8 +40,14 @@ namespace RP {
         
         // extruder temperature
         tft.setTextColor(TFT_RED, TFT_BLACK);
-        tft.drawCentreString(String(status.extruderTemp, 1), 40, 35, 4);
 
+        // two decimals for values below 100 to avoid artefacts of previous values.
+        if (status.extruderTemp < 100.0) {
+            tft.drawCentreString(String(status.extruderTemp, 2), 40, 35, 4);    
+        } else {
+            tft.drawCentreString(String(status.extruderTemp, 1), 40, 35, 4);
+        }
+    
         // target temperature
         tft.drawRect(5, 60, 70, 10, TFT_RED);
 
@@ -67,8 +73,14 @@ namespace RP {
 
         // bed temperature
         tft.setTextColor(TFT_SKYBLUE, TFT_BLACK);
-        tft.drawCentreString(String(status.bedTemp, 1), 120, 35, 4);
 
+        // artefacts prevention
+        if (status.bedTemp < 100.0) {
+            tft.drawCentreString(String(status.bedTemp, 2), 120, 35, 4);
+        } else {
+            tft.drawCentreString(String(status.bedTemp, 1), 120, 35, 4);
+        }
+    
         // target temperature
         tft.drawRect(85, 60, 70, 10, TFT_SKYBLUE);
 
