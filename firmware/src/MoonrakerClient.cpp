@@ -1,10 +1,13 @@
 #include "MoonrakerClient.h"
+#include <WiFiClient.h>
+
+WiFiClient wifiClient;
 
 using namespace RP;
 
 PrinterStatus MoonrakerClient::getData(String host) {    
     // try get data from moonraker
-    http.begin("http://" + host + "/printer/objects/query?webhooks&virtual_sdcard&print_stats&heater_bed&extruder");    
+    http.begin(wifiClient, "http://" + host + "/printer/objects/query?webhooks&virtual_sdcard&print_stats&heater_bed&extruder");    
     int httpCode = http.GET();
     
     // on http OK (200) parse JSON
