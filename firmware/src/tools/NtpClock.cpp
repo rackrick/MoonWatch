@@ -17,13 +17,15 @@ namespace RP {
             tickTime();
 
             // get time struct
-            ptm = gmtime ((time_t *)&lastTime);  
+            time_t raw = lastTime;
+            ptm = localtime(&raw);  
             int day = ptm->tm_mday;            
             int month = ptm->tm_mon+1;            
             int year = ptm->tm_year+1900;  
             int h = ptm->tm_hour;            
             int m = ptm->tm_min;            
             int s = ptm->tm_sec;
+          
 
             String hh = (h < 10) ? ("0" + String(h)) : String(h);
             String mm = (m < 10) ? ("0" + String(m)) : String(m);
