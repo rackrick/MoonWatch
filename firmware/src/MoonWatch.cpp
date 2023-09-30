@@ -277,11 +277,9 @@ bool MoonWatch::switchPrinter(std::vector<PrinterConfig> printers) {
         return false;
     }
 
-    if (activePrinter < (printers.size() - 1)) {
-        nextPrinter++;
-    } else {
-        nextPrinter = 0;
-    }
+    nextPrinter = getNextPrinter(printers, activePrinter);
+    Serial.println(F("next id"));
+    Serial.println(nextPrinter);
 
     Serial.println("try next printer " + printers[nextPrinter].Name + "(" + nextPrinter + ")");
 
@@ -294,10 +292,23 @@ bool MoonWatch::switchPrinter(std::vector<PrinterConfig> printers) {
         return true;
     } else {
         Serial.println(F("error, printer not reachable. skip."));
-        leds[printers[nextPrinter].Led] = CRGB::Black;        
-        
+        leds[printers[nextPrinter].Led] = CRGB::Black;    
+        activePrinter = getNextPrinter(printers, nextPrinter++);
+
         return false;
     }
+}
+
+uint MoonWatch::getNextPrinter(std::vector<PrinterConfig> printers, uint printerId) {
+
+    uint newId = printerId;
+    if (printerId < (printers.size() - 1)) {        
+        newId = printerId + 1;                
+    } else {
+        newId = 0;
+    }
+
+    return newId;
 }
 
            

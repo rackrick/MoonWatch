@@ -61,6 +61,7 @@ namespace RP
             uint activePrinter = 0;
 
             bool switchPrinter(std::vector<PrinterConfig> printers);
+            uint getNextPrinter(std::vector<PrinterConfig> printers, uint nextPrinter);
 
         public:             
             void setupMonitor();
