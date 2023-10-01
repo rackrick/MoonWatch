@@ -47,7 +47,7 @@ void MoonWatch::setupMonitor() {
     lcd = DisplayFactory::getInstance(static_cast<RP::eDisplayMode>(config.general.display)); //TODO: from config    
     String loadMsg[] = {
         "MoonWatch",
-        "V0.13"
+        "V0.14"
     };
     lcd->showStatusMsg(loadMsg, 2);
     delay(2000);
