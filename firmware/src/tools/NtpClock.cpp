@@ -46,7 +46,8 @@ namespace RP {
             tickTime();
                 
             // get time struct
-            ptm = gmtime ((time_t *)&lastTime);      
+            time_t raw = lastTime;
+            ptm = localtime(&raw);   
             int h = ptm->tm_hour;            
             int m = ptm->tm_min;            
             int s = ptm->tm_sec;            
