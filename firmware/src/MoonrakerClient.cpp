@@ -13,7 +13,7 @@ PrinterStatus MoonrakerClient::getData(String host) {
     // on http OK (200) parse JSON
     if (httpCode == 200) {
         // allocate json buffer      
-        DynamicJsonDocument doc(1024);
+        DynamicJsonDocument doc(2048);
         String payload = http.getString();
         DeserializationError jsonError = deserializeJson(doc, payload);
 
