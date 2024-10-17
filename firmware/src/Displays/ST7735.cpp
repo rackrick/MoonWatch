@@ -32,10 +32,6 @@ namespace RP {
         tft.setTextColor(TFT_WHITE, TFT_BLACK);
         tft.drawBitmap(85, 16, Icons::bed, 16, 16, TFT_WHITE);
         tft.drawString("Heatbed", 102, 19);
-
-        // separator
-        tft.drawLine(80, 15, 80, 72, TFT_DARKGREY);
-        tft.drawLine(0, 75, 160, 75, TFT_DARKGREY);
         
         // extruder temperature
         tft.setTextColor(TFT_RED, TFT_BLACK);
@@ -96,6 +92,11 @@ namespace RP {
             tft.setTextColor(TFT_WHITE, TFT_SKYBLUE);
             tft.drawCentreString(String(status.bedTarget, 0) + " C", 120, 61, 1);
         }
+
+        // separator
+        tft.drawLine(80, 15, 80, 72, TFT_DARKGREY);
+        tft.drawLine(0, 75, 160, 75, TFT_DARKGREY);
+
 
         // display progress bar on state printing
         if (status.state == "printing") {
