@@ -1,3 +1,4 @@
+#pragma once
 namespace RP {
     class LedConfig {
         public:

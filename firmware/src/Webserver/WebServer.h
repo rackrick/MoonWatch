@@ -1,3 +1,4 @@
+#pragma once
 #include <ESPAsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <LittleFS.h>

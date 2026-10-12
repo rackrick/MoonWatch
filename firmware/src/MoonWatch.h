@@ -46,22 +46,52 @@ namespace RP
     class MoonWatch {   
 
         private:
-            int StatusLED;
-            IDisplay* lcd;
+            int StatusLED = 0;
+            IDisplay* lcd = nullptr;
             PrinterStatus printer;            
 
-            ulong loopMilis = 0;
-            bool loopSec = false;
-            ulong loopMillisSec = 0;
-            bool loop2Sec = false;
-            ulong loopMillis2Sec = 0;
-            bool loop15Sec = false; 
-            ulong loopMillis15Sec = 0;
+            // setup finished successfully / wifi credentials present
+            bool setupOk = false;
+            bool wifiConfigured = true;
+
+            // loop timers (wrap-safe, see startMonitor)
+            ulong lastSecTick = 0;
+            ulong last2SecTick = 0;
+            ulong last15SecTick = 0;
 
             uint activePrinter = 0;
 
-            bool switchPrinter(std::vector<PrinterConfig> printers);
-            uint getNextPrinter(std::vector<PrinterConfig> printers, uint nextPrinter);
+            // data of the active printer: we keep showing the last good data and only
+            // fall back to the clock after several consecutive failed requests.
+            bool hasData = false;
+            uint8_t failCount = 0;
+            bool wasOffline = false;
+
+            // per printer: last seen state, used to detect a cancelled print
+            // (printing/paused -> standby without passing through "complete")
+            struct PrinterTrack {
+                String lastState;
+                bool cancelActive = false;
+                ulong cancelStart = 0;
+                bool online = false;        // last poll of this printer succeeded
+            };
+            std::vector<PrinterTrack> track;
+            void trackState(uint index, const PrinterStatus& status);
+            CRGB stateColor(uint index, const String& state, bool phaseOn);
+
+            // blink phase for the LEDs (toggles once per second)
+            bool blink = false;
+
+            // wifi dropout handling
+            bool wifiWasDown = false;
+            bool wifiDownShown = false;
+            bool apRestored = false;
+            ulong wifiLostSince = 0;
+            ulong lastWifiRetry = 0;
+
+            void setLed(int index, const CRGB& color);
+            void handleWifiDown(ulong now);
+            bool switchPrinter(const std::vector<PrinterConfig>& printers);
 
         public:             
             void setupMonitor();

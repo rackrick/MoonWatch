@@ -1,10 +1,14 @@
 #include "NtpClock.h"
 
+// resync interval when we have a valid time / retry interval when NTP failed.
+// NTPClient::update() blocks for up to ~1 s, so it must not be called every display update.
+#define NTP_RESYNC_MS (30UL * 60UL * 1000UL)
+#define NTP_RETRY_MS  (30UL * 1000UL)
+
 namespace RP {
     namespace Tools {
-        NtpClock::NtpClock()            
-        {            
-            updateTime();            
+        NtpClock::NtpClock() : timeClient(ntpUDP, "pool.ntp.org", 0)
+        {
         }
 
         NtpClock& NtpClock::getInstance() {
@@ -12,89 +16,65 @@ namespace RP {
             return instance;
         }
 
-        String NtpClock::getDateTimeString() {            
-            // tick tack clock
-            tickTime();
+        void NtpClock::begin() {
+            ConfigStore& config = ConfigStore::getInstance();
+            timeClient.setTimeOffset(config.general.utcoffset * 60 * 60);
+            timeClient.begin();
+            attempted = false;
+            maintain();
+        }
 
-            // get time struct
-            time_t raw = lastTime;
-            ptm = localtime(&raw);  
-            int day = ptm->tm_mday;            
-            int month = ptm->tm_mon+1;            
-            int year = ptm->tm_year+1900;  
-            int h = ptm->tm_hour;            
-            int m = ptm->tm_min;            
-            int s = ptm->tm_sec;
-          
+        // try to (re)sync when due. A failed sync NEVER overwrites a good time.
+        void NtpClock::maintain() {
+            ulong now = millis();
+            ulong interval = synced ? NTP_RESYNC_MS : NTP_RETRY_MS;
 
-            String hh = (h < 10) ? ("0" + String(h)) : String(h);
-            String mm = (m < 10) ? ("0" + String(m)) : String(m);
-            String ss = (s < 10) ? ("0" + String(s)) : String(s);
+            if (attempted && (now - lastAttempt) < interval) {
+                return;
+            }
+            if (WiFi.status() != WL_CONNECTED) {
+                return;
+            }
 
-            // return datetime string
-            String result =                 
-                String(day) + "." + 
-                String(month) + "." + 
-                String(year) + " " + 
-                hh + ":" + mm + ":" + ss;
+            attempted = true;
+            lastAttempt = now;
 
-            return result;               
+            if (timeClient.forceUpdate()) {
+                baseEpoch = timeClient.getEpochTime();
+                baseMillis = millis();
+                synced = true;
+            }
+        }
+
+        bool NtpClock::getTm(struct tm& out) {
+            maintain();
+            if (!synced) {
+                return false;
+            }
+            time_t raw = baseEpoch + (millis() - baseMillis) / 1000;
+            gmtime_r(&raw, &out);   // utc offset is already added to baseEpoch
+            return true;
+        }
+
+        static String two(int v) {
+            return (v < 10) ? ("0" + String(v)) : String(v);
+        }
+
+        String NtpClock::getDateTimeString() {
+            struct tm t;
+            if (!getTm(t)) {
+                return F("--.--.---- --:--:--");
+            }
+            return String(t.tm_mday) + "." + String(t.tm_mon + 1) + "." + String(t.tm_year + 1900) + " " +
+                   two(t.tm_hour) + ":" + two(t.tm_min) + ":" + two(t.tm_sec);
         }
 
         String NtpClock::getTimeString() {
-            // tick tack clock
-            tickTime();
-                
-            // get time struct
-            time_t raw = lastTime;
-            ptm = localtime(&raw);   
-            int h = ptm->tm_hour;            
-            int m = ptm->tm_min;            
-            int s = ptm->tm_sec;            
-
-            String hh = (h < 10) ? ("0" + String(h)) : String(h);
-            String mm = (m < 10) ? ("0" + String(m)) : String(m);
-            String ss = (s < 10) ? ("0" + String(s)) : String(s);
-
-            // return datetime string
-            String result =
-                hh + ":" + mm;
-
-            return result;                   
-        }
-        
-        // resync with ntp and store the current seconds since board start
-        void NtpClock::updateTime() { 
-            if (!ntpSuccess) {
-                delay(1000);
+            struct tm t;
+            if (!getTm(t)) {
+                return F("--:--");
             }
-
-            ConfigStore& config = ConfigStore::getInstance();               
-            long utcOffset = config.general.utcoffset * 60 * 60;            
-            WiFiUDP ntpUDP;
-            NTPClient timeClient(ntpUDP, "pool.ntp.org", utcOffset);
-            timeClient.begin();
-            ntpSuccess = timeClient.update();
-
-            lastSync = timeClient.getEpochTime();
-            lastTime = lastSync;
-            secsLastSync = millis() / 1000;
-            secsLastTime = secsLastSync;
-        }
-
-        void NtpClock::tickTime() {            
-            // get current seconds sice board start
-            ulong currentSecs = millis() / 1000;
-
-            // ntp sync older then 5 minutes? then resync.
-            if (currentSecs - secsLastSync > 300 || !ntpSuccess) {
-                updateTime();
-            }
-
-            // to get the current time we use the epoch time from the sync
-            // add the the passed seconds since then to calculate the new time
-            lastTime = lastTime + (currentSecs - secsLastTime);
-            secsLastTime = currentSecs;              
+            return two(t.tm_hour) + ":" + two(t.tm_min);
         }
     }
 }

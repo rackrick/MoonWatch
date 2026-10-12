@@ -1,11 +1,10 @@
+#pragma once
 #include <NTPClient.h>
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
+#include <time.h>
 
-#ifndef ConfigStoreH
-    #define ConfigStoreH
-    #include "ConfigStore.h"
-#endif
+#include "ConfigStore.h"
 
 namespace RP
 {
@@ -18,27 +17,27 @@ namespace RP
                 NtpClock(NtpClock const&) = delete;
                 void operator=(NtpClock const&)  = delete;
 
-                // void init(long utcOffset);
                 String getDateTimeString();
                 String getTimeString();
+                bool isSynced() const { return synced; }
+
+                // call once WiFi is up (blocking, max. ~1-2 s)
+                void begin();
 
             private:
-                // ctor for singleton
                 NtpClock();
 
-                // properties
-                ulong lastSync;
-                ulong lastTime;
-                ulong secsLastSync;
-                ulong secsLastTime;
-                struct tm *ptm;
-                bool ntpSuccess = false;
-                
-                // methods
-                void updateTime();
-                void tickTime();
+                WiFiUDP ntpUDP;
+                NTPClient timeClient;
+
+                bool synced = false;        // we have a valid time
+                ulong baseEpoch = 0;        // local epoch (incl. utc offset) at last sync
+                ulong baseMillis = 0;       // millis() at last sync
+                ulong lastAttempt = 0;      // millis() of last sync attempt
+                bool attempted = false;
+
+                void maintain();
+                bool getTm(struct tm& out);
         };
-        
     } // namespace Tools
-        
 } // namespace  RP
