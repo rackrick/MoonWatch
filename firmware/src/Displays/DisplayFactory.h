@@ -1,3 +1,4 @@
+#pragma once
 #ifndef IDisplayH
     #define IDisplayH
     #include "IDisplay.h"

@@ -1,177 +1,282 @@
-let printers = 0;
+/**
+ * MoonWatch configuration UI
+ * Fixed printer counter, missing storewifi(), cleaner ID handling
+ */
 
-// load settings
+const MAX_PRINTERS = 5;
+
+/**
+ * Load current config from the device and fill the form
+ */
 function load() {
     fetch("/config")
-    .then(response => response.json())
-    .then(data =>  updateConfig(data));    
+        .then(response => {
+            if (!response.ok) throw new Error("HTTP " + response.status);
+            return response.json();
+        })
+        .then(data => updateConfig(data))
+        .catch(err => {
+            console.error("Failed to load config:", err);
+            alert("Could not load configuration.");
+        });
 }
 
-// display settings und site
+/**
+ * Fill the form with the received config data
+ */
 function updateConfig(data) {
-    // general settings
-    document.getElementById("wifi").value = data.general.wifi;
-    document.getElementById("display").value = data.general.display;
-    document.getElementById("utcoffset").value = data.general.utcoffset;
-
-    // printers
-    for (let i = 0; i < data.printers.length; i++) {
-        addPrinter(
-            data.printers[i].name,
-            data.printers[i].host,
-            data.printers[i].led
-        );
+    // General
+    if (document.getElementById("wifi")) {
+        document.getElementById("wifi").value = data.general.wifi || "";
+    }
+    if (document.getElementById("display")) {
+        document.getElementById("display").value = data.general.display;
+    }
+    if (document.getElementById("utcoffset")) {
+        document.getElementById("utcoffset").value = data.general.utcoffset;
     }
 
-    document.getElementById("numleds").value = data.led.numleds;
-    document.getElementById("statusled").value = data.led.statusled;
-    document.getElementById("brightness").value = data.led.brightness;
+    // Clear existing printer rows (in case load is called again)
+    const container = document.getElementById("printer_container");
+    if (container) {
+        container.innerHTML = "";
+    }
+
+    // Printers
+    if (data.printers && Array.isArray(data.printers)) {
+        data.printers.forEach(p => {
+            addPrinter(p.name, p.host, p.led);
+        });
+    }
+
+    // LED settings
+    if (document.getElementById("numleds")) {
+        document.getElementById("numleds").value = data.led.numleds;
+    }
+    if (document.getElementById("statusled")) {
+        document.getElementById("statusled").value = data.led.statusled;
+    }
+    if (document.getElementById("brightness")) {
+        document.getElementById("brightness").value = data.led.brightness;
+    }
 }
 
-
-// store wifi 
+/**
+ * Save the complete configuration (used on the normal config page)
+ */
 function save() {
-
-    confObj = {
+    const confObj = {
         general: {
             wifi: document.getElementById("wifi").value,
             password: document.getElementById("password").value,
             display: document.getElementById("display").value,
-            utcoffset: document.getElementById("utcoffset").value,
-        }, 
+            utcoffset: document.getElementById("utcoffset").value
+        },
         printers: [],
         led: {
             numleds: document.getElementById("numleds").value,
             brightness: document.getElementById("brightness").value,
             statusled: document.getElementById("statusled").value
-        }        
-    }
-
-    let printerTbl = document.getElementById("printer_container");
-
-    for (let i = 0; i < printerTbl.childNodes.length; i++) {
-        printerObj = {
-            name: document.getElementById("printername_"+ i).value,
-            host: document.getElementById("printerhost_"+ i).value,
-            led: document.getElementById("printerled_" + i).value
         }
-        confObj.printers.push(printerObj);
-    }
+    };
 
-    let options = {
+    const container = document.getElementById("printer_container");
+    const tables = container ? container.querySelectorAll("table.tblPrinter") : [];
+
+    tables.forEach((table, index) => {
+        const nameEl = document.getElementById("printername_" + index);
+        const hostEl = document.getElementById("printerhost_" + index);
+        const ledEl  = document.getElementById("printerled_" + index);
+
+        if (nameEl && hostEl && ledEl) {
+            confObj.printers.push({
+                name: nameEl.value.trim(),
+                host: hostEl.value.trim(),
+                led:  parseInt(ledEl.value, 10) || 0
+            });
+        }
+    });
+
+    const options = {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(confObj)
-    }
+    };
 
     fetch("/config", options)
-    .then(response => response.json())
-    .then(data => resetEsp(data));
+        .then(response => response.json())
+        .then(data => resetEsp(data))
+        .catch(err => {
+            console.error("Save failed:", err);
+            alert("Save failed. Check console for details.");
+        });
 }
 
+/**
+ * Called after a successful save – shows a message
+ * (actual reboot is left to the user, as the original code did)
+ */
 function resetEsp(data) {
-    if (data.status == "ok") {
-        alert("settings saved. restart your MoonWatch to apply the new settings.")
+    if (data && data.status === "ok") {
+        alert("Settings saved.\nPlease restart your MoonWatch to apply the new settings.");
+    } else {
+        alert("Something went wrong while saving.");
     }
 }
 
-// add a new printer printer inputs to config site
+/**
+ * Add a new printer row to the form.
+ * IDs are always sequential based on the current number of rows.
+ */
 function addPrinter(name, host, led) {
+    const container = document.getElementById("printer_container");
+    if (!container) return;
 
-    let newPrinter = 0;
-    if (printers != 0) {       
-        newPrinter = printers++;
-    } else {
-        printers ++;
+    const currentCount = container.querySelectorAll("table.tblPrinter").length;
+
+    if (currentCount >= MAX_PRINTERS) {
+        alert("Maximum of " + MAX_PRINTERS + " printers reached.");
+        return;
     }
 
-    // create table
-    let pTable = document.createElement('table');
-    pTable.id = newPrinter;
+    const id = currentCount;   // 0, 1, 2, ...
+
+    // Create table
+    const pTable = document.createElement("table");
+    pTable.id = "printer_" + id;
     pTable.className = "tblPrinter";
 
-    // name row
-    let nameRow = document.createElement("tr");
+    // --- Name row ---
+    const nameRow = document.createElement("tr");
+    const labelName = document.createElement("td");
+    labelName.className = "label";
+    labelName.textContent = "Printer Name:";
+    const settingsName = document.createElement("td");
+    settingsName.className = "settings";
+    const inputName = document.createElement("input");
+    inputName.type = "text";
+    inputName.id = "printername_" + id;
+    inputName.placeholder = "My Printer";
+    if (name !== undefined && name !== null) inputName.value = name;
+    settingsName.appendChild(inputName);
+    nameRow.appendChild(labelName);
+    nameRow.appendChild(settingsName);
     pTable.appendChild(nameRow);
 
-    let labelColName = document.createElement("td");
-    labelColName.className = "label";
-    labelColName.appendChild(document.createTextNode("Printer Name:"))
-    nameRow.appendChild(labelColName);
-
-    let settingsColName = document.createElement("td");
-    settingsColName.className = "settings";    
-    nameRow.appendChild(settingsColName);
-
-    let inputName = document.createElement("input");
-    inputName.id = "printername_" + newPrinter;
-    inputName.setAttribute("type", "text");
-    
-    if (name !== undefined) {
-        inputName.value = name;
-    }
-    
-    settingsColName.appendChild(inputName);
-
-    // host row
-    let hostRow = document.createElement("tr");
+    // --- Host row ---
+    const hostRow = document.createElement("tr");
+    const labelHost = document.createElement("td");
+    labelHost.className = "label";
+    labelHost.textContent = "Host:";
+    const settingsHost = document.createElement("td");
+    settingsHost.className = "settings";
+    const inputHost = document.createElement("input");
+    inputHost.type = "text";
+    inputHost.id = "printerhost_" + id;
+    inputHost.placeholder = "192.168.1.50 or hostname";
+    if (host !== undefined && host !== null) inputHost.value = host;
+    settingsHost.appendChild(inputHost);
+    hostRow.appendChild(labelHost);
+    hostRow.appendChild(settingsHost);
     pTable.appendChild(hostRow);
 
-    let labelColHost = document.createElement("td");
-    labelColHost.className = "label";
-    labelColHost.appendChild(document.createTextNode("Host:"))
-    hostRow.appendChild(labelColHost);
-
-    let settingsColHost = document.createElement("td");
-    settingsColHost.className = "settings";
-    hostRow.appendChild(settingsColHost);
-
-    let inputHost = document.createElement("input");
-    inputHost.id = "printerhost_" + newPrinter;
-    inputHost.setAttribute("type", "text");
-
-    if (host !== undefined) {
-        inputHost.value = host;
-    }
-
-    settingsColHost.appendChild(inputHost);
-
-    // led row
-    let ledRow = document.createElement("tr");
+    // --- LED row ---
+    const ledRow = document.createElement("tr");
+    const labelLed = document.createElement("td");
+    labelLed.className = "label";
+    labelLed.textContent = "Led#:";
+    const settingsLed = document.createElement("td");
+    settingsLed.className = "settings";
+    const inputLed = document.createElement("input");
+    inputLed.type = "number";
+    inputLed.id = "printerled_" + id;
+    inputLed.min = "0";
+    inputLed.max = "4";
+    inputLed.placeholder = "0-4";
+    if (led !== undefined && led !== null) inputLed.value = led;
+    settingsLed.appendChild(inputLed);
+    ledRow.appendChild(labelLed);
+    ledRow.appendChild(settingsLed);
     pTable.appendChild(ledRow);
 
-    let labelColled = document.createElement("td");
-    labelColled.className = "label";
-    labelColled.appendChild(document.createTextNode("Led#:"))
-    ledRow.appendChild(labelColled);
-
-    let settingsColled = document.createElement("td");
-    settingsColled.className = "settings";
-    ledRow.appendChild(settingsColled);
-
-    let inputLed = document.createElement("input");
-    inputLed.id = "printerled_" + newPrinter;
-    inputLed.setAttribute("type", "text");
-
-    if (led !== undefined) {
-        inputLed.value = led;
-    }
-
-    settingsColled.appendChild(inputLed);
-
-    // add to config site
-    if (printers < 5) {
-        document.getElementById("printer_container").appendChild(pTable);        
-    }
-
-    // creating with vanilla js tables is no fun...
+    container.appendChild(pTable);
 }
 
-// remove the last printer
+/**
+ * Remove the last printer row
+ */
 function delPrinter() {
-    let tblPrinters = document.getElementById("printer_container");
-    if (confirm("remove printer?"))
-    tblPrinters.childNodes[tblPrinters.childNodes.length - 1].remove();
+    const container = document.getElementById("printer_container");
+    if (!container) return;
+
+    const tables = container.querySelectorAll("table.tblPrinter");
+    if (tables.length === 0) {
+        alert("No printers to remove.");
+        return;
+    }
+
+    if (confirm("Remove the last printer?")) {
+        tables[tables.length - 1].remove();
+        // Re-number remaining printers so IDs stay sequential (0,1,2…)
+        renumberPrinters();
+    }
+}
+
+/**
+ * After a delete, re-assign sequential IDs to the remaining rows.
+ * This keeps save() simple and reliable.
+ */
+function renumberPrinters() {
+    const container = document.getElementById("printer_container");
+    if (!container) return;
+
+    const tables = container.querySelectorAll("table.tblPrinter");
+    tables.forEach((table, index) => {
+        table.id = "printer_" + index;
+
+        const nameInput = table.querySelector("input[id^='printername_']");
+        const hostInput = table.querySelector("input[id^='printerhost_']");
+        const ledInput  = table.querySelector("input[id^='printerled_']");
+
+        if (nameInput) nameInput.id = "printername_" + index;
+        if (hostInput) hostInput.id = "printerhost_" + index;
+        if (ledInput)  ledInput.id  = "printerled_"  + index;
+    });
+}
+
+/**
+ * Used on the Soft-AP setup page (index-ap.html)
+ * Saves only WiFi credentials.
+ */
+function storewifi() {
+    const ssid = document.getElementById("wifi").value.trim();
+    const pass = document.getElementById("password").value;
+
+    if (!ssid) {
+        alert("Please enter a WiFi name (SSID).");
+        return;
+    }
+
+    const payload = {
+        wifi: ssid,
+        password: pass
+    };
+
+    fetch("/save/wifi", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data && data.status === "ok") {
+            alert("WiFi settings saved.\nThe device will now try to connect.\nYou can close this page.");
+        } else {
+            alert("Failed to save WiFi settings.");
+        }
+    })
+    .catch(err => {
+        console.error("storewifi error:", err);
+        alert("Error while saving WiFi settings.");
+    });
 }

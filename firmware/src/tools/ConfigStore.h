@@ -1,3 +1,4 @@
+#pragma once
 #include <LittleFS.h>
 #include <ArduinoJson.h>
 #include <vector>
